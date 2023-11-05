@@ -1,15 +1,20 @@
-const fs = require('fs/promises');
-const { join } = require('path');
-const path = require('path');
+const fs = require("fs/promises");
+const { join } = require("path");
+const path = require("path");
 
-const taskPath = path.join(process.cwd(), 'db', 'tasks.json');
+const taskPath = path.join(process.cwd(), "db", "tasks.json");
 
 const readDb = async () => {
-    const rawJson = await fs.readFile(taskPath);
-    const tasks = JSON.parse(rawJson);
-    return tasks;
-}
+  const rawJson = await fs.readFile(taskPath);
+  const tasks = JSON.parse(rawJson);
+  return tasks;
+};
+
+const writeDb = async (data) => {
+  await fs.writeFile(taskPath, JSON.stringify(data, null, 4));
+};
 
 module.exports = {
-    readDb
+  readDb,
+  writeDb,
 };

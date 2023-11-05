@@ -1,35 +1,25 @@
-const express = require('express');
-const fs = require('fs/promises');
-const { join } = require('path');
-const path = require('path');
-const { readDb } = require('../utils/db');
+const express = require("express");
 
-const taskPath = path.join(process.cwd(), 'db', 'tasks.json');
-
+const {
+  getAllTasks,
+  getOneTask,
+  updateTask,
+  createTask,
+  deleteTask,
+} = require("../controllers/tasksController");
 
 const router = express.Router();
 
-router.get('/', async (req, res, next) => {
-    const tasks = await readDb();
-    res.json(tasks);
-});
+router.get("/", getAllTasks);
 
-router.get('/:taskId', async (req, res, next) => {
-    const tasks = await readDb();
-    const { taskId } = req.params;
-    const task = tasks.find(item => item.id === taskId);
-    if (!task) {
-        res.status(404).json({ message: 'task not found' });
-        return;
-    } 
-    res.json(task);
-});
+router.get("/:taskId", getOneTask);
 
-router.post('/', async (req, res, next) => {
+router.post("/", createTask);
 
-})
+router.patch("/:taskId", updateTask);
 
+router.delete("/:taskId", deleteTask);
 
 module.exports = {
-    tasksRouter: router,
-}
+  tasksRouter: router,
+};
