@@ -5,74 +5,58 @@ const {
   createTaskValidationSchema,
   updateTaskValidationSchema,
 } = require("../utils/validation/taskValidationSchemes");
+const {
+  getAllTasksService,
+  getOneTaskService,
+  createTaskService,
+  updateTaskService,
+  deleteTaskService,
+} = require("../services/taskServices");
 
 const taskPath = path.join(process.cwd(), "db", "tasks.json");
 
 const getAllTasks = async (req, res, next) => {
-  const tasks = await readDb();
+  const tasks = await getAllTasksService();
   res.json(tasks);
 };
 
 const getOneTask = async (req, res, next) => {
-  const tasks = await readDb();
-  const { taskId } = req.params;
-  const task = tasks.find((item) => item.id === taskId);
-  if (!task) {
-    res.status(404).json({ message: "task not found" });
-    return;
+  try {
+    const { taskId } = req.params;
+    const task = await getOneTaskService(taskId);
+    res.json(task);
+  } catch (error) {
+    next(error);
   }
-  res.json(task);
 };
 
 const createTask = async (req, res, next) => {
-  const { error } = createTaskValidationSchema.validate(req.body);
-  if (error) {
-    res.status(422).json({ message: `${error}` });
-    return;
+  try {
+    const newTask = await createTaskService(req.body);
+    res.status(201).json(newTask);
+  } catch (error) {
+    next(error);
   }
-  const tasks = await readDb();
-  const newTask = {
-    ...req.body,
-    id: crypto.randomUUID(),
-  };
-  tasks.push(newTask);
-  await writeDb(tasks);
-  res.status(201).json(newTask);
 };
 
 const updateTask = async (req, res, next) => {
-  const { error } = updateTaskValidationSchema.validate(req.body);
-  if (error) {
-    res.status(422).json({ message: `${error}` });
-    return;
+  try {
+    const { taskId } = req.params;
+    const updatedTask = await updateTaskService(taskId, req.body);
+    res.status(200).json(updatedTask);
+  } catch (error) {
+    next(error);
   }
-  const tasks = await readDb();
-  const { taskId } = req.params;
-  const index = tasks.findIndex((task) => task.id === taskId);
-
-  if (index === -1) {
-    res.status(404).json({ message: "task not found" });
-    return;
-  }
-
-  tasks.splice(index, 1, { ...tasks[index], ...req.body });
-  await writeDb(tasks);
-  res.status(200).json(tasks[index]);
 };
 
 const deleteTask = async (req, res, next) => {
-  const tasks = await readDb();
-  const { taskId } = req.params;
-  const index = tasks.findIndex((task) => task.id === taskId);
-
-  if (index === -1) {
-    res.status(404).json({ message: "task not found" });
-    return;
+  try {
+    const { taskId } = req.params;
+    await deleteTaskService(taskId);
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
   }
-
-  tasks.splice(index, 1);
-  await writeDb(tasks);
-  res.sendStatus(204);
 };
 
 module.exports = {
