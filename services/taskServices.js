@@ -1,11 +1,7 @@
 const { readDb, writeDb } = require("../utils/db");
 const crypto = require("crypto");
-const {
-  createTaskValidationSchema,
-  updateTaskValidationSchema,
-} = require("../utils/validation/taskValidationSchemes");
-
 const HttpError = require("../utils/HttpError");
+
 const getAllTasksService = async () => {
   return await readDb();
 };
@@ -20,10 +16,6 @@ const getOneTaskService = async (taskId) => {
 };
 
 const createTaskService = async (body) => {
-  const { error } = createTaskValidationSchema.validate(body);
-  if (error) {
-    throw new HttpError(406, `${error}`);
-  }
   const tasks = await readDb();
   const newTask = {
     ...body,
@@ -36,10 +28,6 @@ const createTaskService = async (body) => {
 };
 
 const updateTaskService = async (taskId, body) => {
-  const { error } = updateTaskValidationSchema.validate(body);
-  if (error) {
-    throw new HttpError(422, `${error}`);
-  }
   const tasks = await readDb();
   const index = tasks.findIndex((task) => task.id === taskId);
 
