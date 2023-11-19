@@ -1,10 +1,3 @@
-const { readDb, writeDb } = require("../utils/db");
-const path = require("path");
-const crypto = require("crypto");
-const {
-  createTaskValidationSchema,
-  updateTaskValidationSchema,
-} = require("../utils/validation/taskValidationSchemes");
 const {
   getAllTasksService,
   getOneTaskService,
@@ -12,52 +5,37 @@ const {
   updateTaskService,
   deleteTaskService,
 } = require("../services/taskServices");
+const controllerWrapper = require("../utils/controllerWrapper");
 
-const taskPath = path.join(process.cwd(), "db", "tasks.json");
-
-const getAllTasks = async (req, res, next) => {
+const getAllTasks = controllerWrapper(async (req, res) => {
   const tasks = await getAllTasksService();
   res.json(tasks);
+});
+
+let getOneTask = async (req, res) => {
+  const { taskId } = req.params;
+  const task = await getOneTaskService(taskId);
+  res.json(task);
 };
 
-const getOneTask = async (req, res, next) => {
-  try {
-    const { taskId } = req.params;
-    const task = await getOneTaskService(taskId);
-    res.json(task);
-  } catch (error) {
-    next(error);
-  }
-};
+getOneTask = controllerWrapper(getOneTask);
 
-const createTask = async (req, res, next) => {
-  try {
-    const newTask = await createTaskService(req.body);
-    res.status(201).json(newTask);
-  } catch (error) {
-    next(error);
-  }
-};
+const createTask = controllerWrapper(async (req, res) => {
+  const newTask = await createTaskService(req.body);
+  res.status(201).json(newTask);
+});
 
-const updateTask = async (req, res, next) => {
-  try {
-    const { taskId } = req.params;
-    const updatedTask = await updateTaskService(taskId, req.body);
-    res.status(200).json(updatedTask);
-  } catch (error) {
-    next(error);
-  }
-};
+const updateTask = controllerWrapper(async (req, res) => {
+  const { taskId } = req.params;
+  const updatedTask = await updateTaskService(taskId, req.body);
+  res.status(200).json(updatedTask);
+});
 
-const deleteTask = async (req, res, next) => {
-  try {
-    const { taskId } = req.params;
-    await deleteTaskService(taskId);
-    res.sendStatus(204);
-  } catch (error) {
-    next(error);
-  }
-};
+const deleteTask = controllerWrapper(async (req, res) => {
+  const { taskId } = req.params;
+  await deleteTaskService(taskId);
+  res.sendStatus(204);
+});
 
 module.exports = {
   getAllTasks,
