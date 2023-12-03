@@ -2,7 +2,7 @@ const Joi = require("joi");
 
 const createTaskValidationSchema = Joi.object({
   title: Joi.string().min(3).max(30).required(),
-  completed: Joi.boolean().required(),
+  completed: Joi.boolean(),
 });
 
 const updateTaskValidationSchema = Joi.object()
