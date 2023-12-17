@@ -7,6 +7,7 @@ const {
   createTask,
   deleteTask,
 } = require("../controllers/tasksController");
+const authenticate = require("../middlewares/authenticate");
 const {
   createTaskValidationSchema,
   updateTaskValidationSchema,
@@ -14,6 +15,8 @@ const {
 const validationWrapper = require("../utils/validationWrapper");
 
 const router = express.Router();
+
+router.use(authenticate);
 
 router
   .route("/")
